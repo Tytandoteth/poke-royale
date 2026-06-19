@@ -62,7 +62,7 @@ export const CARDS: Record<string, UnitStats> = {
   },
   machoke: {
     id: 'machoke', name: 'Machoke', emoji: '🥊', uiColor: '#7a86b8',
-    cost: 3, count: 1, hp: 650, dmg: 240, attackInterval: 1.6, range: 1.2,
+    cost: 3, count: 1, hp: 650, dmg: 180, attackInterval: 1.6, range: 1.2,
     speed: 3.1, flying: false, targetsAir: false,
     radius: 0.45, height: 1.3, aggro: 7,
   },
@@ -74,7 +74,7 @@ export const CARDS: Record<string, UnitStats> = {
   },
   dragonite: {
     id: 'dragonite', name: 'Dragonite', emoji: '🐉', uiColor: '#e8a23c',
-    cost: 5, count: 1, hp: 1150, dmg: 380, attackInterval: 2.0, range: 1.5,
+    cost: 5, count: 1, hp: 1000, dmg: 300, attackInterval: 2.0, range: 1.5,
     speed: 2.7, flying: true, targetsAir: false, buildingOnly: true,
     radius: 0.5, height: 1.4, aggro: 7,
   },

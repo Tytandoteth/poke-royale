@@ -4,6 +4,7 @@ import { GROUP, groups, distXZ } from './types';
 import type { Combatant, ProjectileSpec } from './types';
 import { buildTowerModel } from './models';
 import { HpBar } from './effects';
+import { towerHpMultiplier } from './progression';
 import type { Game } from './game';
 
 const _pos = new THREE.Vector3();
@@ -46,7 +47,9 @@ export class Tower implements Combatant {
     this.team = team;
     this.kind = kind;
     const s = TOWER_STATS[kind];
-    this.hp = this.maxHp = s.hp;
+    // player towers gain HP with king level (lightweight progression)
+    const hpMult = team === 0 ? towerHpMultiplier() : 1;
+    this.hp = this.maxHp = Math.round(s.hp * hpMult);
     this.radius = s.radius;
     this.height = s.height;
     this.dmg = s.dmg;

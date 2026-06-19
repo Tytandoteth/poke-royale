@@ -15,6 +15,30 @@ export interface UiCallbacks {
   onPreviewEnd(): void;
   onDeploy(handIndex: number, clientX: number, clientY: number): boolean;
   onDragStateChange(dragging: boolean): void;
+  onToggleMute?(): boolean;
+  onOpenSettings?(): void;
+}
+
+export interface EndOpts {
+  trophyDelta?: number;
+  level?: number;
+  leveledUp?: boolean;
+}
+
+/** Stat summary shown in a card's hover tooltip. */
+function cardInfo(card: UnitStats): string {
+  if (card.spell) {
+    const k = card.spell.kind;
+    const eff = k === 'freeze' ? `Freezes ${card.spell.freezeDur}s` : k === 'fire' ? 'Splash + knockback' : 'Area damage';
+    return `<b>${card.name}</b><i>Spell · ${card.cost}⚡</i><span>${card.dmg} area dmg</span><span>${eff}</span>`;
+  }
+  const dps = Math.round((card.dmg * Math.max(1, card.count)) / card.attackInterval);
+  const role = card.building ? 'Building' : card.flying ? 'Air' : card.count > 1 ? `Swarm ×${card.count}` : 'Troop';
+  const tags: string[] = [];
+  if (card.targetsAir) tags.push('hits air');
+  if (card.buildingOnly) tags.push('targets buildings');
+  if (card.projectile?.splash) tags.push('splash');
+  return `<b>${card.name}</b><i>${role} · ${card.cost}⚡</i><span>${card.hp * Math.max(1, card.count)} hp · ${dps} dps</span>${tags.length ? `<span>${tags.join(' · ')}</span>` : ''}`;
 }
 
 export class UI {
@@ -53,6 +77,10 @@ export class UI {
         </div>
         <div id="score-e" class="score"><b>0</b><span class="crown">👑</span></div>
       </div>
+      <div id="hud-btns">
+        <button id="btn-sound" class="hud-btn" aria-label="Toggle sound">🔊</button>
+        <button id="btn-settings" class="hud-btn" aria-label="Settings">⚙</button>
+      </div>
       <div id="banner"></div>
       <div id="hint">🖱️ drag a card onto your half to deploy<br>⚙️ wheel: zoom · right-drag: orbit · left-drag: pan<br>⌨️ R: reset view · M: mute</div>
       <div id="bottom">
@@ -80,11 +108,18 @@ export class UI {
     this.x2El = hud.querySelector('#x2')!;
     this.banner = hud.querySelector('#banner')!;
 
+    const soundBtn = hud.querySelector<HTMLButtonElement>('#btn-sound')!;
+    soundBtn.addEventListener('click', () => {
+      const muted = this.cb.onToggleMute?.() ?? false;
+      soundBtn.textContent = muted ? '🔇' : '🔊';
+    });
+    hud.querySelector('#btn-settings')!.addEventListener('click', () => this.cb.onOpenSettings?.());
+
     const hand = hud.querySelector('#hand')!;
     for (let i = 0; i < 4; i++) {
       const card = document.createElement('div');
       card.className = 'card';
-      card.innerHTML = `<span class="cost"></span><span class="emoji"></span><span class="name"></span>`;
+      card.innerHTML = `<span class="cost"></span><span class="count"></span><span class="emoji"></span><span class="name"></span><div class="tip"></div>`;
       hand.appendChild(card);
       this.cardEls.push(card);
 
@@ -147,6 +182,10 @@ export class UI {
         (el.querySelector('.emoji') as HTMLElement).textContent = card.emoji;
         (el.querySelector('.name') as HTMLElement).textContent = card.name;
         (el.querySelector('.cost') as HTMLElement).textContent = String(card.cost);
+        const countEl = el.querySelector('.count') as HTMLElement;
+        countEl.textContent = card.spell ? 'SPELL' : card.count > 1 ? `×${card.count}` : '';
+        countEl.classList.toggle('spell', !!card.spell);
+        (el.querySelector('.tip') as HTMLElement).innerHTML = cardInfo(card);
         el.style.background = `linear-gradient(160deg, ${card.uiColor} 0%, #1c2240 130%)`;
       }
       el.classList.toggle('disabled', s.elixir < card.cost);
@@ -168,7 +207,7 @@ export class UI {
     this.scoreE.textContent = String(s.crowns[1]);
   }
 
-  showEnd(result: 'win' | 'lose' | 'draw', crowns: [number, number]) {
+  showEnd(result: 'win' | 'lose' | 'draw', crowns: [number, number], opts: EndOpts = {}) {
     const msg = document.createElement('div');
     msg.id = 'msg';
     const title = result === 'win' ? 'VICTORY!' : result === 'lose' ? 'DEFEAT' : 'DRAW';
@@ -183,11 +222,18 @@ export class UI {
           return `<i class="cf" style="--x:${x}vw;--d:${d}s;--dl:${dl}s;--r:${r}deg;--c:${c}"></i>`;
         }).join('')
       : '';
+    const delta = opts.trophyDelta ?? 0;
+    const trophyRow = opts.trophyDelta !== undefined
+      ? `<div class="trophy-delta ${delta >= 0 ? 'up' : 'down'}">🏆 ${delta >= 0 ? '+' : ''}${delta} trophies</div>`
+      : '';
+    const levelRow = opts.leveledUp ? `<div class="levelup">♔ King Level ${opts.level}!</div>` : '';
     msg.innerHTML = `
       <div class="rays"></div>
       ${confetti}
       <h1 class="${result}">${title}</h1>
       <div class="crowns-line">👑 <span class="b">${crowns[0]}</span> — <span class="r">${crowns[1]}</span> 👑</div>
+      ${trophyRow}
+      ${levelRow}
       <button id="msg-btn" class="btn-gold">⚔️ Battle Again</button>`;
     document.body.appendChild(msg);
     msg.querySelector('#msg-btn')!.addEventListener('click', () => location.reload());

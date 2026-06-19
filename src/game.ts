@@ -15,10 +15,12 @@ import { Projectile } from './projectile';
 import { Effects } from './effects';
 import { UI } from './ui';
 import { AiController } from './ai';
+import type { Difficulty } from './ai';
 import { CameraRig } from './cameraControls';
 import { GameAudio } from './audio';
 import { DamageNumbers } from './damageNumbers';
 import { DebrisField } from './debris';
+import { SettingsScreen } from './screens/settings';
 
 const DT = 1 / 60;
 const _pos = new THREE.Vector3();
@@ -38,6 +40,8 @@ export class Game {
   debris!: DebrisField;
   arena!: ArenaHandle;
   private composer!: EffectComposer;
+  private bloom!: UnrealBloomPass;
+  onMatchEnd: ((result: 'win' | 'lose' | 'draw', crowns: [number, number]) => void) | null = null;
   private timeScale = 1;
   private introT = 0;
   private introStage = -1;
@@ -54,6 +58,7 @@ export class Game {
   over = false;
   suddenDeath = false;
   matchStarted = false;
+  difficulty: Difficulty = 'normal';
 
   private raycaster = new THREE.Raycaster();
   private groundPlane = new THREE.Plane(new THREE.Vector3(0, 1, 0), 0);
@@ -87,8 +92,8 @@ export class Game {
     // bloom pipeline: crystals, projectiles, flames and lightning glow
     this.composer = new EffectComposer(this.renderer);
     this.composer.addPass(new RenderPass(this.scene, this.camera));
-    const bloom = new UnrealBloomPass(new THREE.Vector2(innerWidth, innerHeight), 0.45, 0.55, 0.82);
-    this.composer.addPass(bloom);
+    this.bloom = new UnrealBloomPass(new THREE.Vector2(innerWidth, innerHeight), 0.45, 0.55, 0.82);
+    this.composer.addPass(this.bloom);
     this.composer.addPass(new OutputPass());
 
     window.addEventListener('resize', () => {
@@ -122,7 +127,7 @@ export class Game {
     );
 
     this.buildGhost();
-    this.ai = new AiController(this, randomDeck());
+    this.ai = new AiController(this, randomDeck(), this.difficulty);
 
     this.ui = new UI({
       onPreview: (i, x, y) => this.showPreview(i, x, y),
@@ -133,6 +138,8 @@ export class Game {
         if (dragging) this.rig.cancelPan();
         this.deployZone.visible = dragging;
       },
+      onToggleMute: () => this.audio.toggleMute(),
+      onOpenSettings: () => new SettingsScreen(this).show(),
     });
 
     this.lastTime = performance.now();
@@ -140,14 +147,30 @@ export class Game {
   }
 
   /** Called by the deck builder once the player locks in 8 cards. */
-  beginMatch(ids: string[]) {
+  beginMatch(ids: string[], difficulty: Difficulty = this.difficulty) {
+    this.difficulty = difficulty;
     this.playerDeck = new Deck(ids);
-    this.ai = new AiController(this, randomDeck());
+    this.ai = new AiController(this, randomDeck(), difficulty);
     this.playerElixir = MATCH.startElixir;
     this.matchStarted = true;
     this.introT = 3.4; // 3…2…1…Battle!
     this.introStage = -1;
     this.audio.unlock();
+  }
+
+  /** Graphics quality preset — pixel ratio, shadows, bloom. */
+  setQuality(q: 'low' | 'medium' | 'high') {
+    const cap = q === 'low' ? 1 : q === 'medium' ? 1.5 : 2;
+    this.renderer.setPixelRatio(Math.min(devicePixelRatio, cap));
+    this.renderer.setSize(innerWidth, innerHeight);
+    this.composer.setSize(innerWidth, innerHeight);
+    this.renderer.shadowMap.enabled = q !== 'low';
+    this.bloom.enabled = q !== 'low';
+    this.bloom.strength = q === 'high' ? 0.55 : 0.4;
+    this.scene.traverse((o) => {
+      const l = o as THREE.DirectionalLight;
+      if (l.isDirectionalLight && l.shadow) l.castShadow = q !== 'low';
+    });
   }
 
   /* ------------------------------------------------------------ */
@@ -300,19 +323,26 @@ export class Game {
     return [...this.units, ...this.towers];
   }
 
-  /** Nearest enemy unit within aggro range, else nearest enemy tower. */
+  /**
+   * Best enemy unit within aggro range (prefer one already in attack range, then
+   * nearest, with a mild low-HP bias for focus fire), else nearest enemy tower.
+   */
   findTarget(unit: Unit): Combatant | null {
     unit.getPosition(_pos);
     let bestUnit: Combatant | null = null;
-    let bestUnitD = Infinity;
+    let bestScore = Infinity;
     for (const u of this.units) {
       if (u.team === unit.team || !u.alive) continue;
       // building-seekers ignore everything except structures (Snorlax taunts them)
       if (unit.stats.buildingOnly && !u.isBuilding) continue;
       if (u.flying && !unit.stats.targetsAir) continue;
       const d = distXZ(_pos, u.getPosition(new THREE.Vector3())) - u.radius;
-      if (d <= unit.stats.aggro && d < bestUnitD) {
-        bestUnitD = d;
+      if (d > unit.stats.aggro) continue;
+      let score = d;
+      if (d <= unit.stats.range) score -= unit.stats.aggro; // strongly prefer in-range
+      score += u.hp / 4000; // mild focus-fire on weaker targets
+      if (score < bestScore) {
+        bestScore = score;
         bestUnit = u;
       }
     }
@@ -370,7 +400,8 @@ export class Game {
     if (this.over) return;
     this.over = true;
     this.audio.fanfare(result === 'win');
-    this.ui.showEnd(result, this.crowns);
+    if (this.onMatchEnd) this.onMatchEnd(result, this.crowns);
+    else this.ui.showEnd(result, this.crowns);
   }
 
   /* ------------------------------------------------------------ */
