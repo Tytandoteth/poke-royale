@@ -1,0 +1,32 @@
+MIT License
+
+Copyright (c) 2026 Tytan.eth
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+---
+
+NOTE ON SCOPE: The MIT license above covers the ORIGINAL SOURCE CODE of this
+project only. It does not grant any rights to third-party trademarks or
+intellectual property. Pokémon and the names, likenesses, and concepts of its
+creatures are trademarks of Nintendo / Creatures Inc. / GAME FREAK inc. This
+project is an unaffiliated, non-commercial fan tribute, uses no extracted or
+official game assets (all 3D models are generated procedurally from code), and
+is not endorsed by or associated with those rights holders. See the README for
+details and de-branding guidance.
