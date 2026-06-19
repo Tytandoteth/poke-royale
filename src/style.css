@@ -866,6 +866,22 @@ button { font-family: inherit; }
 }
 .card:hover .tip { opacity: 1; transform: translateX(-50%) translateY(0); }
 .card.selected .tip, .card.disabled .tip { opacity: 0 !important; }
+.card .tip .t-trait { color: #cdd6f5; font-style: italic; margin-top: 3px; }
+
+/* rarity accents */
+.card .rar {
+  position: absolute; top: 3px; left: 9px; right: 9px; height: 3px;
+  border-radius: 2px; opacity: 0.95; pointer-events: none; z-index: 2;
+}
+.db-card .rar-bar {
+  position: absolute; top: 5px; left: 11px; right: 11px; height: 3px;
+  border-radius: 2px; background: var(--rar); box-shadow: 0 0 7px var(--rar);
+}
+.db-card .rarity {
+  font-size: 8px; font-weight: 900; letter-spacing: 1px; text-transform: uppercase;
+  color: var(--rar); background: #00000059; padding: 2px 7px; border-radius: 7px;
+}
+.db-card.picked { box-shadow: 0 0 0 3px var(--rar), 0 0 18px color-mix(in srgb, var(--rar) 55%, transparent), 0 10px 20px #000b, inset 0 2px 0 #ffffff4d; }
 
 /* ═══════════════════ END-SCREEN PROGRESSION ═════════════════════ */
 .trophy-delta {

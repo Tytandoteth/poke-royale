@@ -32,13 +32,32 @@ export const GROUP = {
 };
 export const groups = (mem: number, filter: number) => ((mem << 16) | filter);
 
+export type ProjectileStyle = 'orb' | 'bolt' | 'bubble' | 'leaf' | 'fireball';
+
 export interface ProjectileSpec {
   speed: number;
   arc: number;
   color: number;
   size: number;
   splash?: number;
+  style?: ProjectileStyle;
 }
+
+export type Rarity = 'common' | 'rare' | 'epic' | 'legendary';
+export type MeleeStyle = 'punch' | 'slam' | 'slash' | 'bite';
+
+export const RARITY_COLOR: Record<Rarity, string> = {
+  common: '#9fb0c8',
+  rare: '#ffb02e',
+  epic: '#c06bf0',
+  legendary: '#38e0d0',
+};
+export const RARITY_LABEL: Record<Rarity, string> = {
+  common: 'Common',
+  rare: 'Rare',
+  epic: 'Epic',
+  legendary: 'Legendary',
+};
 
 export interface UnitStats {
   id: string;
@@ -58,6 +77,11 @@ export interface UnitStats {
   radius: number;
   height: number;
   aggro: number;
+  rarity: Rarity;
+  /** One-line flavor describing what makes this card distinct. */
+  trait: string;
+  /** Melee attack flavor — drives the lunge animation + impact FX. */
+  meleeStyle?: MeleeStyle;
   projectile?: ProjectileSpec;
   /** Present on spell cards: cast anywhere, instant area damage. */
   spell?: {

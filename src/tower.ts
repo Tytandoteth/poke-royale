@@ -15,7 +15,7 @@ const TOWER_STATS = {
   king: { hp: 3000, dmg: 140, interval: 1.0, range: 7.2, radius: 1.5, height: 4.2 },
 };
 
-const BOLT: ProjectileSpec = { speed: 17, arc: 0.55, color: 0xffd34d, size: 0.14 };
+const BOLT: ProjectileSpec = { speed: 17, arc: 0.55, color: 0xffd34d, size: 0.14, style: 'bolt' };
 
 export class Tower implements Combatant {
   game: Game;

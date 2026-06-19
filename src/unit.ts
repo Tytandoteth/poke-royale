@@ -233,14 +233,41 @@ export class Unit implements Combatant {
       this.getPosition(_pos);
       _dir.subVectors(_tPos, _pos).setY(0).normalize();
       this.target.takeDamage(this.stats.dmg, _dir.clone());
-      this.game.effects.burst(_tPos.clone().setY(Math.max(0.6, _tPos.y)), 0xffe0a3, 6, 3, 0.18, 0.3);
-      if (this.target.isBuilding) this.game.audio.thud();
+
+      const impact = _tPos.clone().setY(Math.max(0.6, _tPos.y));
+      const typeColor = parseInt(this.stats.uiColor.slice(1), 16);
+      const style = this.stats.meleeStyle ?? 'punch';
+      let kb = 1.6, lift = 0.6;
+      const fx = this.game.effects;
+      switch (style) {
+        case 'punch': // sharp white shockwave + sparks
+          fx.burst(impact, 0xffffff, 9, 6, 0.16, 0.26);
+          fx.burst(impact, typeColor, 6, 3, 0.18, 0.3);
+          kb = 2.4; lift = 0.7;
+          break;
+        case 'slam': // ground dust + heavy lift, tiny shake
+          fx.burst(impact.clone().setY(0.3), 0x9a8a6a, 16, 4.5, 0.3, 0.6, 7);
+          fx.burst(impact, typeColor, 8, 4, 0.22, 0.4);
+          this.game.rig.shake(0.12);
+          kb = 3.2; lift = 1.5;
+          break;
+        case 'slash': // fast purple arc
+          fx.burst(impact, typeColor, 11, 7, 0.16, 0.26);
+          fx.burst(impact, 0xffffff, 4, 5, 0.14, 0.22);
+          kb = 1.8;
+          break;
+        case 'bite': // small quick nip
+          fx.burst(impact, typeColor, 5, 3, 0.13, 0.24);
+          kb = 1.1;
+          break;
+      }
+      if (this.target.isBuilding || style === 'slam') this.game.audio.thud();
       else this.game.audio.hit();
-      // physical knockback on units
+
       const t = this.target as Unit;
       if (!this.target.isBuilding && t.body && t.alive) {
         const m = t.body.mass();
-        t.body.applyImpulse({ x: _dir.x * m * 1.6, y: m * 0.6, z: _dir.z * m * 1.6 }, true);
+        t.body.applyImpulse({ x: _dir.x * m * kb, y: m * lift, z: _dir.z * m * kb }, true);
       }
     }
   }
@@ -311,10 +338,32 @@ export class Unit implements Combatant {
       const speed2 = lv.x * lv.x + lv.z * lv.z;
       const moving = speed2 > 0.4;
       const bob = moving ? Math.abs(Math.sin(this.walkPhase)) * 0.09 : Math.sin(this.walkPhase * 0.4) * 0.02;
-      this.creature.position.y = bob + (this.lungeT > 0 ? 0 : 0);
       this.creature.rotation.x = moving ? Math.sin(this.walkPhase) * 0.06 : 0;
-      // attack lunge
-      this.creature.position.z = this.lungeT > 0 ? Math.sin((0.32 - this.lungeT) / 0.32 * Math.PI) * 0.35 : 0;
+      // attack lunge — flavored per melee style
+      let lungeZ = 0, lungeY = 0;
+      if (this.lungeT > 0) {
+        const phase = (0.32 - this.lungeT) / 0.32; // 0..1
+        const swing = Math.sin(phase * Math.PI);
+        switch (this.stats.meleeStyle) {
+          case 'slam': // rear up then slam down
+            lungeY = Math.sin(phase * Math.PI) * (phase < 0.5 ? 0.3 : -0.25);
+            lungeZ = swing * 0.2;
+            this.creature.rotation.x = -0.3 * Math.cos(phase * Math.PI);
+            break;
+          case 'slash': // quick deep dash
+            lungeZ = Math.sin(phase * Math.PI * 0.9) * 0.5;
+            break;
+          case 'bite': // little hop-forward nip
+            lungeZ = swing * 0.22;
+            lungeY = swing * 0.14;
+            break;
+          case 'punch':
+          default: // sharp jab
+            lungeZ = Math.sin(phase * Math.PI) ** 0.6 * 0.42;
+        }
+      }
+      this.creature.position.y = bob + lungeY;
+      this.creature.position.z = lungeZ;
       // wings flap / flame flicker
       const wings = this.creature.userData.wings as THREE.Mesh[] | undefined;
       if (wings) {

@@ -1,4 +1,5 @@
 import { ALL_CARD_IDS, CARDS, DECK_IDS } from './cards';
+import { RARITY_COLOR, RARITY_LABEL } from './types';
 
 const STORAGE_KEY = 'poke-royale-deck';
 
@@ -62,11 +63,14 @@ export class DeckBuilder {
       el.className = 'db-card';
       el.dataset.id = id;
       el.style.background = `linear-gradient(160deg, ${card.uiColor} 0%, #1c2240 135%)`;
+      el.style.setProperty('--rar', RARITY_COLOR[card.rarity]);
+      el.title = card.trait;
       el.innerHTML = `
+        <span class="rar-bar"></span>
         <span class="cost">${card.cost}</span>
         <span class="emoji">${card.emoji}</span>
         <span class="name">${card.name}</span>
-        <span class="role">${card.spell ? 'Spell' : card.building ? 'Building' : card.flying ? 'Flying' : card.count > 1 ? 'Swarm' : 'Troop'}</span>`;
+        <span class="rarity">${RARITY_LABEL[card.rarity]}</span>`;
       el.addEventListener('click', () => {
         if (selected.has(id)) selected.delete(id);
         else if (selected.size < 8) selected.add(id);
