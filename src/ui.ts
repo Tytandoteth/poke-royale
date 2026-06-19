@@ -1,5 +1,5 @@
 import type { UnitStats } from './types';
-import { RARITY_COLOR, RARITY_LABEL } from './types';
+import { RARITY_COLOR, RARITY_LABEL, TYPE_INFO } from './types';
 
 export interface UiState {
   elixir: number;
@@ -28,13 +28,13 @@ export interface EndOpts {
 
 /** Stat summary shown in a card's hover tooltip. */
 function cardInfo(card: UnitStats): string {
+  const ti = TYPE_INFO[card.type];
   const rar = `<i style="color:${RARITY_COLOR[card.rarity]}">${RARITY_LABEL[card.rarity]} · ${card.cost}⚡</i>`;
-  if (card.spell) {
-    return `<b>${card.name}</b>${rar}<span>${card.dmg} area damage</span><span class="t-trait">${card.trait}</span>`;
-  }
-  const dps = Math.round((card.dmg * Math.max(1, card.count)) / card.attackInterval);
-  const stat = `${card.hp * Math.max(1, card.count)} hp · ${dps} dps`;
-  return `<b>${card.name}</b>${rar}<span>${stat}</span><span class="t-trait">${card.trait}</span>`;
+  const type = `<span class="t-type" style="color:${ti.color}">${ti.icon} ${ti.label} type</span>`;
+  const stat = card.spell
+    ? `${card.dmg} area damage`
+    : `${card.hp * Math.max(1, card.count)} hp · ${Math.round((card.dmg * Math.max(1, card.count)) / card.attackInterval)} dps`;
+  return `<b>${card.name}</b>${rar}${type}<span>${stat}</span><span class="t-trait">${card.trait}</span>`;
 }
 
 export class UI {
@@ -115,7 +115,7 @@ export class UI {
     for (let i = 0; i < 4; i++) {
       const card = document.createElement('div');
       card.className = 'card';
-      card.innerHTML = `<span class="rar"></span><span class="cost"></span><span class="count"></span><span class="emoji"></span><span class="name"></span><div class="tip"></div>`;
+      card.innerHTML = `<span class="rar"></span><span class="cost"></span><span class="type"></span><span class="count"></span><span class="emoji"></span><span class="name"></span><div class="tip"></div>`;
       hand.appendChild(card);
       this.cardEls.push(card);
 
@@ -182,6 +182,11 @@ export class UI {
         countEl.textContent = card.spell ? 'SPELL' : card.count > 1 ? `×${card.count}` : '';
         countEl.classList.toggle('spell', !!card.spell);
         (el.querySelector('.rar') as HTMLElement).style.background = RARITY_COLOR[card.rarity];
+        const typeEl = el.querySelector('.type') as HTMLElement;
+        const ti = TYPE_INFO[card.type];
+        typeEl.textContent = ti.icon;
+        typeEl.style.background = ti.color;
+        typeEl.title = `${ti.label} type`;
         (el.querySelector('.tip') as HTMLElement).innerHTML = cardInfo(card);
         el.style.background = `linear-gradient(160deg, ${card.uiColor} 0%, #1c2240 130%)`;
       }

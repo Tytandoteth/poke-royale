@@ -46,6 +46,24 @@ export interface ProjectileSpec {
 export type Rarity = 'common' | 'rare' | 'epic' | 'legendary';
 export type MeleeStyle = 'punch' | 'slam' | 'slash' | 'bite';
 
+export type ElementType =
+  | 'electric' | 'fire' | 'water' | 'grass' | 'fighting'
+  | 'rock' | 'ghost' | 'normal' | 'dragon' | 'poison' | 'ice';
+
+export const TYPE_INFO: Record<ElementType, { label: string; color: string; icon: string }> = {
+  electric: { label: 'Electric', color: '#f7d02c', icon: '⚡' },
+  fire: { label: 'Fire', color: '#ee8130', icon: '🔥' },
+  water: { label: 'Water', color: '#5a9ff0', icon: '💧' },
+  grass: { label: 'Grass', color: '#7ac74c', icon: '🌿' },
+  fighting: { label: 'Fighting', color: '#d8503e', icon: '🥊' },
+  rock: { label: 'Rock', color: '#b6a136', icon: '🪨' },
+  ghost: { label: 'Ghost', color: '#9a7bd0', icon: '👻' },
+  normal: { label: 'Normal', color: '#a8a878', icon: '⭐' },
+  dragon: { label: 'Dragon', color: '#8a5cfc', icon: '🐉' },
+  poison: { label: 'Poison', color: '#b85cb6', icon: '🟣' },
+  ice: { label: 'Ice', color: '#7fd3e0', icon: '❄️' },
+};
+
 export const RARITY_COLOR: Record<Rarity, string> = {
   common: '#9fb0c8',
   rare: '#ffb02e',
@@ -77,6 +95,7 @@ export interface UnitStats {
   radius: number;
   height: number;
   aggro: number;
+  type: ElementType;
   rarity: Rarity;
   /** One-line flavor describing what makes this card distinct. */
   trait: string;

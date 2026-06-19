@@ -1,5 +1,5 @@
 import { ALL_CARD_IDS, CARDS, DECK_IDS } from './cards';
-import { RARITY_COLOR, RARITY_LABEL } from './types';
+import { RARITY_COLOR, RARITY_LABEL, TYPE_INFO } from './types';
 
 const STORAGE_KEY = 'poke-royale-deck';
 
@@ -63,11 +63,13 @@ export class DeckBuilder {
       el.className = 'db-card';
       el.dataset.id = id;
       el.style.background = `linear-gradient(160deg, ${card.uiColor} 0%, #1c2240 135%)`;
+      const ti = TYPE_INFO[card.type];
       el.style.setProperty('--rar', RARITY_COLOR[card.rarity]);
-      el.title = card.trait;
+      el.title = `${ti.label} type — ${card.trait}`;
       el.innerHTML = `
         <span class="rar-bar"></span>
         <span class="cost">${card.cost}</span>
+        <span class="type" style="background:${ti.color}" title="${ti.label} type">${ti.icon}</span>
         <span class="emoji">${card.emoji}</span>
         <span class="name">${card.name}</span>
         <span class="rarity">${RARITY_LABEL[card.rarity]}</span>`;
