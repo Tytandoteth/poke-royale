@@ -1,12 +1,22 @@
-# Poké Royale ⚡👑
+<h1 align="center">Poké Royale ⚡👑</h1>
+
+<p align="center">
+  <b>A 3D, physics-driven Clash Royale — built with AI by <a href="https://www.tiktok.com/@ty.prompts.ai">@ty.prompts.ai</a></b>
+</p>
+
+<p align="center">
+  <a href="https://www.tiktok.com/@ty.prompts.ai"><img src="https://img.shields.io/badge/TikTok-%40ty.prompts.ai-ff0050?logo=tiktok&logoColor=white" alt="TikTok @ty.prompts.ai"></a>
+  <img src="https://img.shields.io/badge/stack-Three.js%20%2B%20Rapier%20%2B%20Vite-7c5cd9" alt="stack">
+  <img src="https://img.shields.io/badge/license-MIT%20(code)-2ecc71" alt="license">
+  <img src="https://img.shields.io/badge/100%25-procedural%20%E2%80%94%20no%20assets-ffc83d" alt="procedural">
+</p>
 
 A **Clash Royale–style real-time strategy game** with Pokémon-inspired creatures, rendered as a fully **3D battlefield you can zoom into**, with real physics — built from scratch with Three.js and the Rapier physics engine. No game engine, no art assets: every creature, tower, and effect is generated procedurally in code.
 
-![stack](https://img.shields.io/badge/stack-Three.js%20%2B%20Rapier%20%2B%20Vite-7c5cd9)
-![license](https://img.shields.io/badge/license-MIT%20(code)-2ecc71)
-![type](https://img.shields.io/badge/100%25-procedural%20%E2%80%94%20no%20assets-ffc83d)
-
-> **Fork it, clone it, learn from it, remix it.** This is a free, open-source resource — a complete, real-time 3D card-battler you can study end to end. Please read the [Legal / Fan Project](#legal--fan-project) note before publishing your own build.
+> ### 🎬 Built live with AI by [@ty.prompts.ai](https://www.tiktok.com/@ty.prompts.ai)
+> This entire game was built using AI coding agents — start to finish. **[Follow @ty.prompts.ai on TikTok](https://www.tiktok.com/@ty.prompts.ai)** for the build-alongs, the exact prompts, and what gets added next. ⚡
+>
+> **Fork it, clone it, learn from it, remix it** — it's free and open source. Want to extend it? See **[PROMPTS.md](PROMPTS.md)** for ready-to-paste prompts. Read the [Legal / Fan Project](#legal--fan-project) note before publishing your own build.
 
 ---
 
@@ -102,6 +112,12 @@ PRs and forks welcome. Easy first additions:
 
 Roadmap ideas left on the table: card Evolutions, an activated-ability Champion hero, and online 1v1.
 
+## 🤖 Improve it with AI
+
+This whole game was built with AI coding agents — and you can keep extending it the same way. **[PROMPTS.md](PROMPTS.md)** is a library of **ready-to-paste prompts** for adding cards, game modes, power-ups, graphics upgrades, and more. Clone the repo, open it in [Claude Code](https://claude.com/claude-code) / Cursor / Windsurf, and paste one in.
+
+🎬 **Follow [@ty.prompts.ai on TikTok](https://www.tiktok.com/@ty.prompts.ai)** for AI build-alongs and prompt drops — and tag the account if you ship something with these.
+
 ## ⚖️ Legal / Fan Project
 
 This is a **non-commercial, unaffiliated fan tribute**. It ships **no official or extracted assets** — all 3D models are generated from code, and all sounds are synthesized. The MIT [LICENSE](LICENSE) covers the original source code **only**.
@@ -113,3 +129,10 @@ This is a **non-commercial, unaffiliated fan tribute**. It ships **no official o
 ## License
 
 [MIT](LICENSE) © 2026 Tytan.eth — code only; see the note above regarding third-party trademarks.
+
+---
+
+<p align="center">
+  <b>Built with AI by <a href="https://www.tiktok.com/@ty.prompts.ai">@ty.prompts.ai</a> — follow on TikTok for more. ⚡👑</b><br>
+  <a href="https://www.tiktok.com/@ty.prompts.ai">https://www.tiktok.com/@ty.prompts.ai</a>
+</p>

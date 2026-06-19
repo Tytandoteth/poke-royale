@@ -63,7 +63,11 @@ export class HomeScreen {
       <div class="home-actions">
         <button id="home-settings" class="btn-ghost" aria-label="Settings">⚙</button>
         <button id="home-play" class="btn-gold home-play">▶ BATTLE</button>
-      </div>`;
+      </div>
+
+      <a class="home-credit" href="https://www.tiktok.com/@ty.prompts.ai" target="_blank" rel="noopener">
+        🎬 Built with AI by <b>@ty.prompts.ai</b> · follow on TikTok
+      </a>`;
     document.body.appendChild(el);
 
     el.querySelectorAll<HTMLButtonElement>('.diff-opt').forEach((b) => {

@@ -3,6 +3,10 @@
   "private": true,
   "version": "0.1.0",
   "type": "module",
+  "description": "A 3D, physics-driven Clash Royale built with AI. By @ty.prompts.ai",
+  "author": "ty.prompts.ai (https://www.tiktok.com/@ty.prompts.ai)",
+  "homepage": "https://www.tiktok.com/@ty.prompts.ai",
+  "license": "MIT",
   "scripts": {
     "dev": "vite",
     "build": "tsc --noEmit && vite build",
