@@ -65,13 +65,14 @@ export class DeckBuilder {
       el.style.background = `linear-gradient(160deg, ${card.uiColor} 0%, #1c2240 135%)`;
       const ti = TYPE_INFO[card.type];
       el.style.setProperty('--rar', RARITY_COLOR[card.rarity]);
+      el.style.setProperty('--tc', ti.color);
       el.title = `${ti.label} type — ${card.trait}`;
       el.innerHTML = `
         <span class="rar-bar"></span>
         <span class="cost">${card.cost}</span>
-        <span class="type" style="background:${ti.color}" title="${ti.label} type">${ti.icon}</span>
         <span class="emoji">${card.emoji}</span>
         <span class="name">${card.name}</span>
+        <span class="type-tag">${ti.label}</span>
         <span class="rarity">${RARITY_LABEL[card.rarity]}</span>`;
       el.addEventListener('click', () => {
         if (selected.has(id)) selected.delete(id);

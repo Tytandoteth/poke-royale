@@ -115,7 +115,7 @@ export class UI {
     for (let i = 0; i < 4; i++) {
       const card = document.createElement('div');
       card.className = 'card';
-      card.innerHTML = `<span class="rar"></span><span class="cost"></span><span class="type"></span><span class="count"></span><span class="emoji"></span><span class="name"></span><div class="tip"></div>`;
+      card.innerHTML = `<span class="rar"></span><span class="cost"></span><span class="count"></span><span class="emoji"></span><span class="name"></span><div class="tip"></div>`;
       hand.appendChild(card);
       this.cardEls.push(card);
 
@@ -182,11 +182,7 @@ export class UI {
         countEl.textContent = card.spell ? 'SPELL' : card.count > 1 ? `×${card.count}` : '';
         countEl.classList.toggle('spell', !!card.spell);
         (el.querySelector('.rar') as HTMLElement).style.background = RARITY_COLOR[card.rarity];
-        const typeEl = el.querySelector('.type') as HTMLElement;
-        const ti = TYPE_INFO[card.type];
-        typeEl.textContent = ti.icon;
-        typeEl.style.background = ti.color;
-        typeEl.title = `${ti.label} type`;
+        el.style.setProperty('--tc', TYPE_INFO[card.type].color);
         (el.querySelector('.tip') as HTMLElement).innerHTML = cardInfo(card);
         el.style.background = `linear-gradient(160deg, ${card.uiColor} 0%, #1c2240 130%)`;
       }
