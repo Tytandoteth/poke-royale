@@ -31,10 +31,97 @@ function add(
   return m;
 }
 
-const sphere = (r: number, seg = 12) => new THREE.SphereGeometry(r, seg, Math.max(6, seg - 2));
-const cone = (r: number, h: number, seg = 8) => new THREE.ConeGeometry(r, h, seg);
+const sphere = (r: number, seg = 18) => new THREE.SphereGeometry(r, seg, Math.max(10, seg - 2));
+const cone = (r: number, h: number, seg = 10) => new THREE.ConeGeometry(r, h, seg);
 const box = (w: number, h: number, d: number) => new THREE.BoxGeometry(w, h, d);
-const cyl = (rt: number, rb: number, h: number, seg = 10) => new THREE.CylinderGeometry(rt, rb, h, seg);
+const cyl = (rt: number, rb: number, h: number, seg = 12) => new THREE.CylinderGeometry(rt, rb, h, seg);
+
+/* ------------------------------------------------------------------ */
+/* Procedural detail (bump) textures — give bodies real surface       */
+/* ------------------------------------------------------------------ */
+
+type SkinKind = 'fur' | 'scale' | 'skin' | 'rock' | 'plant';
+const _texCache: Partial<Record<SkinKind, THREE.Texture>> = {};
+
+function makeDetail(kind: SkinKind): THREE.Texture {
+  const cached = _texCache[kind];
+  if (cached) return cached;
+  const S = 128;
+  const c = document.createElement('canvas');
+  c.width = c.height = S;
+  const ctx = c.getContext('2d')!;
+  ctx.fillStyle = '#808080'; // neutral mid-gray = flat bump
+  ctx.fillRect(0, 0, S, S);
+
+  if (kind === 'fur') {
+    for (let i = 0; i < 1100; i++) {
+      const x = Math.random() * S, y = Math.random() * S;
+      const a = -Math.PI / 2 + (Math.random() - 0.5) * 0.7, l = 3 + Math.random() * 4;
+      ctx.strokeStyle = Math.random() < 0.5 ? 'rgba(255,255,255,0.5)' : 'rgba(0,0,0,0.45)';
+      ctx.lineWidth = 1;
+      ctx.beginPath(); ctx.moveTo(x, y); ctx.lineTo(x + Math.cos(a) * l, y + Math.sin(a) * l); ctx.stroke();
+    }
+  } else if (kind === 'scale') {
+    const r = 11;
+    for (let yy = 0; yy < S + r; yy += r * 0.78) {
+      const off = ((yy / (r * 0.78)) % 2) * r / 2;
+      for (let xx = -r; xx < S + r; xx += r) {
+        ctx.strokeStyle = 'rgba(0,0,0,0.42)'; ctx.lineWidth = 1.6;
+        ctx.beginPath(); ctx.arc(xx + off, yy, r * 0.6, Math.PI * 0.12, Math.PI * 0.88); ctx.stroke();
+        ctx.strokeStyle = 'rgba(255,255,255,0.32)';
+        ctx.beginPath(); ctx.arc(xx + off, yy - 1.6, r * 0.6, Math.PI * 0.2, Math.PI * 0.8); ctx.stroke();
+      }
+    }
+  } else if (kind === 'rock') {
+    for (let i = 0; i < 70; i++) {
+      const x = Math.random() * S, y = Math.random() * S, w = 6 + Math.random() * 18, h = 6 + Math.random() * 18;
+      ctx.fillStyle = Math.random() < 0.5 ? 'rgba(255,255,255,0.28)' : 'rgba(0,0,0,0.38)';
+      ctx.fillRect(x, y, w, h);
+    }
+  } else if (kind === 'plant') {
+    for (let i = 0; i < 220; i++) {
+      const x = Math.random() * S, y = Math.random() * S, r2 = 2 + Math.random() * 6;
+      ctx.fillStyle = Math.random() < 0.5 ? 'rgba(255,255,255,0.22)' : 'rgba(0,0,0,0.3)';
+      ctx.beginPath(); ctx.arc(x, y, r2, 0, Math.PI * 2); ctx.fill();
+    }
+  } else {
+    // skin: fine soft noise
+    for (let i = 0; i < 3000; i++) {
+      const x = Math.random() * S, y = Math.random() * S;
+      ctx.fillStyle = Math.random() < 0.5 ? 'rgba(255,255,255,0.12)' : 'rgba(0,0,0,0.14)';
+      ctx.fillRect(x, y, 2, 2);
+    }
+  }
+  const t = new THREE.CanvasTexture(c);
+  t.wrapS = t.wrapT = THREE.RepeatWrapping;
+  t.repeat.set(3, 3);
+  _texCache[kind] = t;
+  return t;
+}
+
+interface Skin { kind: SkinKind; smooth: boolean; bump?: number; }
+const SKIN: Record<string, Skin> = {
+  pikachu: { kind: 'fur', smooth: true }, eevee: { kind: 'fur', smooth: true }, snorlax: { kind: 'fur', smooth: true },
+  charizard: { kind: 'scale', smooth: true }, dragonite: { kind: 'scale', smooth: true },
+  squirtle: { kind: 'skin', smooth: true }, gengar: { kind: 'skin', smooth: true },
+  machamp: { kind: 'skin', smooth: true }, machoke: { kind: 'skin', smooth: true }, zubat: { kind: 'skin', smooth: true },
+  bulbasaur: { kind: 'plant', smooth: true }, golem: { kind: 'rock', smooth: false },
+};
+
+/** Give a built creature tactile surface relief + smooth organic shading. */
+function applySkin(creature: THREE.Object3D, skin: Skin) {
+  const tex = makeDetail(skin.kind);
+  const bump = skin.bump ?? (skin.kind === 'rock' ? 0.08 : skin.kind === 'scale' ? 0.05 : 0.035);
+  creature.traverse((o) => {
+    const m = (o as THREE.Mesh).material as THREE.MeshStandardMaterial | undefined;
+    if (!m || !m.isMeshStandardMaterial) return;
+    if (m.emissiveIntensity > 0.4) return; // leave glowing parts (eyes, flames, cheeks) alone
+    m.bumpMap = tex;
+    m.bumpScale = bump;
+    m.flatShading = !skin.smooth;
+    m.needsUpdate = true;
+  });
+}
 
 function eyes(parent: THREE.Object3D, y: number, z: number, spread: number, r = 0.05) {
   const mat = std(0x14141a, { rough: 0.4 });
@@ -307,6 +394,7 @@ const BUILDERS: Record<string, () => THREE.Group> = {
 
 export function buildUnitModel(id: string, team: number, unitRadius: number): THREE.Group {
   const creature = (BUILDERS[id] ?? pikachu)();
+  applySkin(creature, SKIN[id] ?? { kind: 'skin', smooth: true });
   const root = new THREE.Group();
   root.add(creature);
   // team ring under the unit
@@ -330,6 +418,10 @@ export function buildTowerModel(kind: 'princess' | 'king', team: number): THREE.
   const stone = std(0xa7adba, { rough: 0.95 });
   const stoneDark = std(0x7e8492, { rough: 0.95 });
   const teamMat = std(TEAM_COLOR[team]);
+  // carve real stone relief into the masonry
+  const rockTex = makeDetail('rock');
+  stone.bumpMap = stoneDark.bumpMap = rockTex;
+  stone.bumpScale = stoneDark.bumpScale = 0.05;
   const r = kind === 'king' ? 1.5 : 1.1;
   const h = kind === 'king' ? 2.6 : 2.1;
 
