@@ -38,6 +38,9 @@ export class Unit implements Combatant {
   staggerT = 0;     // big-hit stun timer
   frozenT = 0;      // ice beam freeze timer
   private decayAccum = 0;
+  private stuckT = 0;
+  private lastX = 0;
+  private lastZ = 0;
   private flashMats: { m: THREE.MeshStandardMaterial; e: number; i: number }[] = [];
 
   constructor(game: Game, stats: UnitStats, team: number, pos: THREE.Vector3) {
@@ -178,18 +181,23 @@ export class Unit implements Combatant {
       } else if (this.isBuilding) {
         // buildings never chase
       } else {
-        // move toward waypoint
+        // move toward waypoint, steering around towers in the way
         const wp = this.waypoint(_pos, _tPos);
         _dir.set(wp.x - _pos.x, 0, wp.z - _pos.z);
         if (_dir.lengthSq() > 0.001) _dir.normalize();
+        this.avoidTowers(_pos);
         const vy = this.flying ? this.hoverVel(_pos.y) : this.body.linvel().y;
         this.body.setLinvel(
           { x: _dir.x * this.stats.speed, y: vy, z: _dir.z * this.stats.speed },
           true,
         );
         this.faceTowards(_pos.clone().add(_dir), dt);
+        this.unstick(_pos, dt);
       }
+    } else {
+      this.stuckT = 0;
     }
+    this.lastX = _pos.x; this.lastZ = _pos.z;
 
     this.lungeT = Math.max(0, this.lungeT - dt);
     this.walkPhase += dt * this.stats.speed * 3.2;
@@ -200,16 +208,58 @@ export class Unit implements Combatant {
     return (FLY_HEIGHT - y) * 3;
   }
 
-  /** Ground units must cross at a bridge. */
+  /**
+   * Ground units must cross at a bridge. To avoid grinding into the river-blocker
+   * wall, they funnel to the bridge mouth on their own bank head-on, then cross.
+   */
   private waypoint(pos: THREE.Vector3, targetPos: THREE.Vector3): THREE.Vector3 {
     if (this.flying) return targetPos;
-    const needCross = Math.sign(pos.z) !== Math.sign(targetPos.z) && Math.abs(pos.z) > ARENA.riverHalfW + 0.4;
-    if (needCross) {
-      const bx = pos.x >= 0 ? ARENA.bridgeX : -ARENA.bridgeX;
-      _dir.set(bx, 0, -Math.sign(pos.z) * 0.6);
-      return _dir;
+    const mouth = ARENA.riverHalfW + 0.7;
+    const sameSide = Math.sign(pos.z) === Math.sign(targetPos.z) || Math.abs(pos.z) <= mouth;
+    if (sameSide) return targetPos;
+
+    const side = Math.sign(pos.z) || 1; // bank we're currently on (+ player, - enemy)
+    // pick the bridge nearer to our x, biased toward the target's lane
+    const want = (pos.x + targetPos.x) * 0.5;
+    const bx = want >= 0 ? ARENA.bridgeX : -ARENA.bridgeX;
+    const aligned = Math.abs(pos.x - bx) < ARENA.bridgeHalfW * 0.8;
+    // not aligned → slide along our own bank to the bridge mouth; aligned → cross
+    return _dir.set(bx, 0, aligned ? -side * mouth : side * (ARENA.riverHalfW + 0.4));
+  }
+
+  /** Curve the travel direction around any tower in the path (not the target). */
+  private avoidTowers(pos: THREE.Vector3) {
+    for (const t of this.game.towers) {
+      if (!t.alive || (t as unknown) === (this.target as unknown)) continue;
+      const dx = t.pos.x - pos.x, dz = t.pos.z - pos.z;
+      const d = Math.hypot(dx, dz);
+      const reach = t.radius + this.radius + 1.4;
+      if (d >= reach || d < 0.01) continue;
+      if (dx * _dir.x + dz * _dir.z <= 0) continue; // tower is behind us
+      // perpendicular to travel, pushed away from the tower
+      let px = -_dir.z, pz = _dir.x;
+      if (px * dx + pz * dz > 0) { px = -px; pz = -pz; }
+      const strength = (reach - d) / reach;
+      _dir.x += px * strength * 1.8;
+      _dir.z += pz * strength * 1.8;
+      const len = Math.hypot(_dir.x, _dir.z);
+      if (len > 0.001) { _dir.x /= len; _dir.z /= len; }
     }
-    return targetPos;
+  }
+
+  /** Detect a unit that's trying to move but barely advancing, and pop it free. */
+  private unstick(pos: THREE.Vector3, dt: number) {
+    const moved = Math.hypot(pos.x - this.lastX, pos.z - this.lastZ);
+    if (moved < this.stats.speed * dt * 0.3) this.stuckT += dt;
+    else this.stuckT = 0;
+    if (this.stuckT > 0.4) {
+      // sidestep toward the nearest bridge lane + a little hop to clear wedges
+      const bx = pos.x >= 0 ? ARENA.bridgeX : -ARENA.bridgeX;
+      const sx = Math.sign(bx - pos.x) || (this.walkPhase % 1 < 0.5 ? 1 : -1);
+      const m = this.body.mass();
+      this.body.applyImpulse({ x: sx * m * 1.6, y: m * 0.9, z: -Math.sign(pos.z) * m * 0.6 }, true);
+      this.stuckT = 0;
+    }
   }
 
   private faceTowards(p: THREE.Vector3, dt: number) {
