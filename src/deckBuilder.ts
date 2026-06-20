@@ -68,7 +68,6 @@ export class DeckBuilder {
       el.style.setProperty('--tc', ti.color);
       el.title = `${ti.label} type — ${card.trait}`;
       el.innerHTML = `
-        <span class="rar-bar"></span>
         <span class="cost">${card.cost}</span>
         <span class="emoji">${card.emoji}</span>
         <span class="name">${card.name}</span>

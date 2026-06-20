@@ -790,13 +790,14 @@ button { font-family: inherit; }
   filter: grayscale(0.8) brightness(0.55);
   transition: transform 0.14s cubic-bezier(0.2, 1.4, 0.4, 1), filter 0.14s, box-shadow 0.14s;
   box-shadow: 0 5px 12px #0009, inset 0 2px 0 #ffffff4d, inset 0 -10px 16px #00000052;
-  overflow: hidden;
+  overflow: visible;
 }
 .db-card:hover { transform: translateY(-5px); filter: grayscale(0.25) brightness(0.92); }
 .db-card.picked {
   filter: none;
   transform: translateY(-5px);
-  box-shadow: 0 0 0 3px var(--gold), 0 0 18px #ffc83d73, 0 10px 20px #000b, inset 0 2px 0 #ffffff4d;
+  border-color: var(--rar);
+  box-shadow: 0 0 16px color-mix(in srgb, var(--rar) 50%, transparent), 0 10px 22px #000b, inset 0 2px 0 #ffffff4d;
 }
 .db-card.picked::before {
   content: '✓';
@@ -899,15 +900,10 @@ button { font-family: inherit; }
   position: absolute; top: 3px; left: 9px; right: 9px; height: 3px;
   border-radius: 2px; opacity: 0.95; pointer-events: none; z-index: 2;
 }
-.db-card .rar-bar {
-  position: absolute; top: 5px; left: 11px; right: 11px; height: 3px;
-  border-radius: 2px; background: var(--rar); box-shadow: 0 0 7px var(--rar);
-}
 .db-card .rarity {
   font-size: 8px; font-weight: 900; letter-spacing: 1px; text-transform: uppercase;
   color: var(--rar); background: #00000059; padding: 2px 7px; border-radius: 7px;
 }
-.db-card.picked { box-shadow: 0 0 0 3px var(--rar), 0 0 18px color-mix(in srgb, var(--rar) 55%, transparent), 0 10px 20px #000b, inset 0 2px 0 #ffffff4d; }
 
 /* ═══════════════════ END-SCREEN PROGRESSION ═════════════════════ */
 .trophy-delta {
