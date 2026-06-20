@@ -5,7 +5,15 @@
 </p>
 
 <p align="center">
-  <a href="https://www.tiktok.com/@ty.prompts.ai"><img src="https://img.shields.io/badge/TikTok-%40ty.prompts.ai-ff0050?logo=tiktok&logoColor=white" alt="TikTok @ty.prompts.ai"></a>
+  <a href="https://poke-royale-nu.vercel.app"><img src="https://img.shields.io/badge/%E2%96%B6%20Play-Live%20Demo-7c5cd9?style=for-the-badge" alt="Play Live"></a>
+  <a href="https://www.tiktok.com/@ty.prompts.ai"><img src="https://img.shields.io/badge/TikTok-%40ty.prompts.ai-ff0050?style=for-the-badge&logo=tiktok&logoColor=white" alt="TikTok @ty.prompts.ai"></a>
+</p>
+
+<p align="center">
+  <a href="https://poke-royale-nu.vercel.app"><img src="docs/hero.jpg" alt="Poké Royale gameplay — a 3D physics battle on the bridge" width="840"></a>
+</p>
+
+<p align="center">
   <img src="https://img.shields.io/badge/stack-Three.js%20%2B%20Rapier%20%2B%20Vite-7c5cd9" alt="stack">
   <img src="https://img.shields.io/badge/license-MIT%20(code)-2ecc71" alt="license">
   <img src="https://img.shields.io/badge/100%25-procedural%20%E2%80%94%20no%20assets-ffc83d" alt="procedural">
