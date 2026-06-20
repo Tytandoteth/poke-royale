@@ -1,0 +1,8 @@
+Project guidance lives in AGENTS.md — read it first.
+
+Quick reference:
+- Setup: `npm install`, then `npm run dev`. Verify changes with `npm run build` (type-checks the whole project). No tests/lint suite, no backend, no env vars.
+- Content is data-driven: add a card in src/cards.ts + a model in src/models.ts (register in BUILDERS); the deck builder, AI, and HUD pick it up automatically.
+- No assets — models are primitives (src/models.ts), textures are canvas-generated, audio is synthesized (src/audio.ts). Don't add image/audio/model files.
+- TypeScript strict, terse style. Route all attack damage through Game.applyTypedDamage so type effectiveness applies.
+- See PROMPTS.md for ready-to-paste feature prompts.

@@ -31,13 +31,13 @@ A **Clash Royale–style real-time strategy game** with Pokémon-inspired creatu
 ## ▶️ Quick start
 
 ```bash
-git clone <your-fork-url> poke-royale
+git clone https://github.com/Tytandoteth/poke-royale.git
 cd poke-royale
 npm install
 npm run dev        # → http://localhost:5173
 ```
 
-That's it — no API keys, no backend, no environment variables. It runs fully in the browser.
+That's it — no API keys, no backend, no environment variables. It runs fully in the browser. **Cloning into an AI editor?** It ships with [`AGENTS.md`](AGENTS.md), [`CLAUDE.md`](CLAUDE.md), and [`.cursorrules`](.cursorrules) so Cursor / Claude Code / Codex understand the project immediately.
 
 | Command | What it does |
 |---------|--------------|
@@ -46,6 +46,17 @@ That's it — no API keys, no backend, no environment variables. It runs fully i
 | `npm run preview` | Serve the production build locally |
 
 Requires Node 18+.
+
+## ✨ Features
+
+- ⚔️ **Real-time 1v1 card battles** — elixir economy, 4-card cycling hand, double-elixir finish, and sudden death.
+- 🧊 **Zoomable 3D battlefield** — orbit, pan, and zoom right down into the fight; it's not a flat board.
+- 🧠 **Physics for real** — units collide and shove (Rapier), take knockback, **ragdoll** on death, and towers shatter into physical rubble.
+- 🃏 **15 cards across 4 rarities** with **11 elemental types** and **type effectiveness** (water beats fire, electric beats water…) — "SUPER!" hits land harder.
+- 🎯 **Distinct attacks per creature** — electric bolts, water bubbles, fireballs, spinning leaves, and punch/slam/slash/bite melee.
+- 🤖 **Smart AI** with 3 difficulty tiers that counter-picks your pushes, banks elixir, and exploits open lanes.
+- 🏆 **Progression** — trophies, win/loss, and King Levels that buff your towers (saved locally).
+- 🎨 **All procedural** — hand-built low-poly models, canvas textures, bloom + image-based lighting, a stadium crowd, synthesized music & SFX. Zero downloaded assets.
 
 ## 🎮 How to play
 
@@ -122,7 +133,12 @@ Roadmap ideas left on the table: card Evolutions, an activated-ability Champion 
 
 ## 🤖 Improve it with AI
 
-This whole game was built with AI coding agents — and you can keep extending it the same way. **[PROMPTS.md](PROMPTS.md)** is a library of **ready-to-paste prompts** for adding cards, game modes, power-ups, graphics upgrades, and more. Clone the repo, open it in [Claude Code](https://claude.com/claude-code) / Cursor / Windsurf, and paste one in.
+This whole game was built with AI coding agents — and it's set up so you can keep extending it the same way:
+
+- **[`AGENTS.md`](AGENTS.md)** — a complete project briefing your AI editor reads automatically (also mirrored to [`CLAUDE.md`](CLAUDE.md) and [`.cursorrules`](.cursorrules)). It explains the architecture, conventions, and how to add content, so the agent gets it right the first time.
+- **[`PROMPTS.md`](PROMPTS.md)** — a library of **ready-to-paste prompts** for adding cards, game modes, power-ups, graphics upgrades, and more.
+
+Clone the repo, open it in [Claude Code](https://claude.com/claude-code) / Cursor / Windsurf, and paste a prompt in — the agent already knows the codebase.
 
 🎬 **Follow [@ty.prompts.ai on TikTok](https://www.tiktok.com/@ty.prompts.ai)** for AI build-alongs and prompt drops — and tag the account if you ship something with these.
 
