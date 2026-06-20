@@ -138,6 +138,11 @@ function pikachu(): THREE.Group {
   const yellow = std(0xf5d033);
   const black = std(0x1c1c22);
   add(g, sphere(0.42), yellow, [0, 0.46, 0], [0, 0, 0], [1, 1.12, 0.95]);
+  // lighter cream belly + brown back stripes (two-tone)
+  add(g, sphere(0.3), std(0xfbe6a4), [0, 0.4, 0.2], [0, 0, 0], [0.72, 0.95, 0.45]);
+  const stripe = std(0x9a6a26);
+  add(g, box(0.5, 0.07, 0.18), stripe, [0, 0.74, -0.28], [0.5, 0, 0]);
+  add(g, box(0.42, 0.07, 0.16), stripe, [0, 0.58, -0.36], [0.7, 0, 0]);
   // ears
   const earL = add(g, cone(0.1, 0.52), yellow, [0.2, 1.08, -0.02], [0, 0, -0.35]);
   const earR = add(g, cone(0.1, 0.52), yellow, [-0.2, 1.08, -0.02], [0, 0, 0.35]);
@@ -231,6 +236,9 @@ function machamp(): THREE.Group {
   const skin = std(0x8a96b8);
   const dark = std(0x3c4154);
   add(g, sphere(0.52), skin, [0, 1.0, 0], [0, 0, 0], [1.15, 1.2, 0.8]);
+  // lighter chest plates (two-tone)
+  add(g, sphere(0.22), std(0xb3bdd6), [0.18, 1.15, 0.34], [0, 0, 0], [0.8, 0.95, 0.5]);
+  add(g, sphere(0.22), std(0xb3bdd6), [-0.18, 1.15, 0.34], [0, 0, 0], [0.8, 0.95, 0.5]);
   add(g, box(0.85, 0.22, 0.5), dark, [0, 0.5, 0]);
   const head = add(g, sphere(0.26), skin, [0, 1.75, 0.05]);
   eyes(head, 0.05, 0.21, 0.11, 0.045);
@@ -295,6 +303,8 @@ function eevee(): THREE.Group {
   const brown = std(0xa8743e);
   const cream = std(0xe8d6b0);
   add(g, sphere(0.26), brown, [0, 0.3, -0.05], [0, 0, 0], [1, 0.95, 1.35]);
+  // cream chest fluff (two-tone)
+  add(g, sphere(0.18), std(0xeed9b0), [0, 0.28, 0.18], [0, 0, 0], [0.85, 0.8, 0.5]);
   const head = add(g, sphere(0.23), brown, [0, 0.6, 0.22]);
   eyes(head, 0.06, 0.18, 0.1, 0.045);
   add(head, cone(0.1, 0.34, 5), brown, [0.13, 0.3, -0.05], [0, 0, -0.3]);

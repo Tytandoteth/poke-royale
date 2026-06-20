@@ -25,6 +25,7 @@ import { SettingsScreen } from './screens/settings';
 
 const DT = 1 / 60;
 const _pos = new THREE.Vector3();
+const _introTarget = new THREE.Vector3(0, 0, 1.5);
 
 export class Game {
   container: HTMLElement;
@@ -46,6 +47,7 @@ export class Game {
   private timeScale = 1;
   private introT = 0;
   private introStage = -1;
+  private introSweep = false;
   private cinematic: { t: number; focus: THREE.Vector3; result: 'win' | 'lose' } | null = null;
 
   units: Unit[] = [];
@@ -162,6 +164,14 @@ export class Game {
     this.introT = 3.4; // 3…2…1…Battle!
     this.introStage = -1;
     this.audio.unlock();
+
+    // cinematic match-start camera sweep — wide low angle settling into play view
+    this.rig.target.set(0, 0, 0);
+    this.rig.dist = 42;
+    this.rig.polar = 0.26;
+    this.rig.az = -0.95;
+    this.rig.panBlocked = true;
+    this.introSweep = true;
   }
 
   /** Graphics quality preset — pixel ratio, shadows, bloom. */
@@ -446,6 +456,20 @@ export class Game {
         this.rig.panBlocked = false;
         this.cinematic = null;
         this.endMatch(c.result);
+      }
+    }
+
+    // match-start sweep: glide the camera from a dramatic angle into play view
+    if (this.introSweep) {
+      if (this.matchStarted && this.introT > 0) {
+        const k = Math.min(1, frameDt * 1.4);
+        this.rig.dist += (30 - this.rig.dist) * k;
+        this.rig.polar += (0.62 - this.rig.polar) * k;
+        this.rig.az += (0 - this.rig.az) * k;
+        this.rig.target.lerp(_introTarget, k);
+      } else {
+        this.introSweep = false;
+        this.rig.panBlocked = false;
       }
     }
 

@@ -196,6 +196,38 @@ export function buildArena(scene: THREE.Scene, world: RAPIER.World): ArenaHandle
     scene.add(rock);
   }
 
+  /* ---- crowd stands: tiered bleachers + colored spectators along both sides ---- */
+  const standMat = new THREE.MeshStandardMaterial({ color: 0x8a93a8, roughness: 0.95, flatShading: true });
+  const standMat2 = new THREE.MeshStandardMaterial({ color: 0x6c768f, roughness: 0.95, flatShading: true });
+  const crowdColors = [0xff6b6b, 0xffd34d, 0x6fb1ff, 0x6dffa0, 0xff8df1, 0xffffff, 0xffa94d];
+  const dotGeo = new THREE.SphereGeometry(0.16, 6, 5);
+  const tiers = 3;
+  for (const sx of [1, -1]) {
+    const baseX = sx * (halfW + 1.2);
+    for (let tier = 0; tier < tiers; tier++) {
+      const step = new THREE.Mesh(new THREE.BoxGeometry(1.0, 0.5, halfL * 2), tier % 2 ? standMat2 : standMat);
+      step.position.set(baseX + sx * tier * 0.95, 0.25 + tier * 0.5, 0);
+      step.receiveShadow = true;
+      step.castShadow = true;
+      scene.add(step);
+      // spectators on this tier
+      const count = 26;
+      const inst = new THREE.InstancedMesh(dotGeo, new THREE.MeshStandardMaterial({ roughness: 0.7 }), count);
+      const m = new THREE.Matrix4();
+      const color = new THREE.Color();
+      for (let i = 0; i < count; i++) {
+        const z = -halfL + 0.6 + (i / (count - 1)) * (halfL * 2 - 1.2);
+        const bob = 0.06 * Math.sin(i * 1.7);
+        m.makeTranslation(baseX + sx * tier * 0.95 + sx * 0.1, 0.5 + tier * 0.5 + 0.28 + bob, z + (Math.random() - 0.5) * 0.3);
+        inst.setMatrixAt(i, m);
+        inst.setColorAt(i, color.setHex(crowdColors[(i + tier) % crowdColors.length]));
+      }
+      inst.instanceMatrix.needsUpdate = true;
+      if (inst.instanceColor) inst.instanceColor.needsUpdate = true;
+      scene.add(inst);
+    }
+  }
+
   /* ---- physics: ground, boundary walls, river blockers ---- */
   const fixed = (x: number, y: number, z: number) =>
     world.createRigidBody(RAPIER.RigidBodyDesc.fixed().setTranslation(x, y, z));
