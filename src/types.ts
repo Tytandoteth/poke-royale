@@ -64,6 +64,47 @@ export const TYPE_INFO: Record<ElementType, { label: string; color: string; icon
   ice: { label: 'Ice', color: '#7fd3e0', icon: '❄️' },
 };
 
+/** Simplified type chart — attacker type → defender types it is strong / weak against. */
+const TYPE_STRONG: Partial<Record<ElementType, ElementType[]>> = {
+  fire: ['grass', 'ice'],
+  water: ['fire', 'rock'],
+  electric: ['water'],
+  grass: ['water', 'rock'],
+  ice: ['grass', 'dragon'],
+  fighting: ['normal', 'rock', 'ice'],
+  rock: ['fire', 'ice'],
+  poison: ['grass'],
+  ghost: ['ghost'],
+  dragon: ['dragon'],
+};
+const TYPE_RESIST: Partial<Record<ElementType, ElementType[]>> = {
+  fire: ['fire', 'water', 'rock', 'dragon'],
+  water: ['water', 'grass', 'dragon'],
+  electric: ['electric', 'grass', 'dragon'],
+  grass: ['grass', 'fire', 'poison', 'dragon'],
+  ice: ['ice', 'fire', 'water'],
+  fighting: ['poison', 'ghost'],
+  rock: ['fighting'],
+  poison: ['poison', 'rock', 'ghost'],
+  ghost: ['normal'],
+  normal: ['rock', 'ghost'],
+};
+
+export const TYPE_SUPER = 1.4;
+export const TYPE_WEAK = 0.7;
+
+/** Damage multiplier for an attack of `atk` type hitting a `def` type. */
+export function typeMultiplier(atk: ElementType, def: ElementType): number {
+  if (TYPE_STRONG[atk]?.includes(def)) return TYPE_SUPER;
+  if (TYPE_RESIST[atk]?.includes(def)) return TYPE_WEAK;
+  return 1;
+}
+
+/** Types this attacker deals bonus damage to (for UI hints). */
+export function strongAgainst(atk: ElementType): ElementType[] {
+  return TYPE_STRONG[atk] ?? [];
+}
+
 export const RARITY_COLOR: Record<Rarity, string> = {
   common: '#9fb0c8',
   rare: '#ffb02e',

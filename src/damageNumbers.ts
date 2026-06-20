@@ -36,6 +36,21 @@ export class DamageNumbers {
     });
   }
 
+  /** Floating text label, e.g. "SUPER!" on a super-effective hit. */
+  spawnLabel(world: THREE.Vector3, text: string, kind: 'super' | 'resist') {
+    if (this.active.length > 48) return;
+    const el = document.createElement('div');
+    el.className = `dmg dmg-${kind}`;
+    el.textContent = text;
+    this.container.appendChild(el);
+    this.active.push({
+      el,
+      world: world.clone().add(new THREE.Vector3((Math.random() - 0.5) * 0.4, 0.55, 0)),
+      life: 1.0,
+      maxLife: 1.0,
+    });
+  }
+
   update(dt: number, camera: THREE.Camera) {
     for (let i = this.active.length - 1; i >= 0; i--) {
       const n = this.active[i];

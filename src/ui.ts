@@ -1,5 +1,5 @@
 import type { UnitStats } from './types';
-import { RARITY_COLOR, RARITY_LABEL, TYPE_INFO } from './types';
+import { RARITY_COLOR, RARITY_LABEL, TYPE_INFO, strongAgainst } from './types';
 
 export interface UiState {
   elixir: number;
@@ -34,7 +34,9 @@ function cardInfo(card: UnitStats): string {
   const stat = card.spell
     ? `${card.dmg} area damage`
     : `${card.hp * Math.max(1, card.count)} hp · ${Math.round((card.dmg * Math.max(1, card.count)) / card.attackInterval)} dps`;
-  return `<b>${card.name}</b>${rar}${type}<span>${stat}</span><span class="t-trait">${card.trait}</span>`;
+  const strong = strongAgainst(card.type).map((t) => TYPE_INFO[t].icon).join('');
+  const strongLine = strong ? `<span class="t-strong">⚔ Strong vs ${strong}</span>` : '';
+  return `<b>${card.name}</b>${rar}${type}<span>${stat}</span>${strongLine}<span class="t-trait">${card.trait}</span>`;
 }
 
 export class UI {

@@ -276,13 +276,13 @@ export class Unit implements Combatant {
     if (this.stats.projectile) {
       this.getPosition(_pos);
       _pos.y = this.flying ? FLY_HEIGHT : this.stats.height * 0.7;
-      this.game.spawnProjectile(_pos.clone(), this.target, this.stats.projectile, this.stats.dmg, this.team);
+      this.game.spawnProjectile(_pos.clone(), this.target, this.stats.projectile, this.stats.dmg, this.team, this.stats.type);
       this.game.audio.zap();
     } else {
       this.target.getPosition(_tPos);
       this.getPosition(_pos);
       _dir.subVectors(_tPos, _pos).setY(0).normalize();
-      this.target.takeDamage(this.stats.dmg, _dir.clone());
+      this.game.applyTypedDamage(this.target, this.stats.dmg, this.stats.type, _dir.clone());
 
       const impact = _tPos.clone().setY(Math.max(0.6, _tPos.y));
       const typeColor = parseInt(this.stats.uiColor.slice(1), 16);

@@ -845,6 +845,8 @@ button { font-family: inherit; }
 .dmg-enemy { color: var(--gold); }
 .dmg-friendly { color: var(--red); }
 .dmg-heal { color: #5dff8a; }
+.dmg-super { color: #ff7ae0; font-size: 17px; -webkit-text-stroke: 1.4px #4a1040; text-shadow: 0 0 10px #ff7ae0aa, 0 2px 0 #000c; }
+.dmg-resist { color: #9fb0c8; font-size: 13px; }
 
 /* ═══════════════════ CARD BADGES + TOOLTIPS ═════════════════════ */
 .card .count {
@@ -879,6 +881,7 @@ button { font-family: inherit; }
 .card:hover .tip { opacity: 1; transform: translateX(-50%) translateY(0); }
 .card.selected .tip, .card.disabled .tip { opacity: 0 !important; }
 .card .tip .t-trait { color: #cdd6f5; font-style: italic; margin-top: 3px; }
+.card .tip .t-strong { display: block; font-size: 10.5px; font-weight: 800; color: #ffd36b; margin-top: 2px; }
 .card .tip .t-type { display: block; font-size: 11px; font-weight: 900; margin-top: 1px; }
 
 /* hand card: tint the name plate by element type */

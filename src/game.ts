@@ -5,8 +5,8 @@ import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js'
 import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
 import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
 import RAPIER from '@dimforge/rapier3d-compat';
-import { ARENA, MATCH, TEAM_COLOR, distXZ } from './types';
-import type { Combatant, ProjectileSpec, UnitStats } from './types';
+import { ARENA, MATCH, TEAM_COLOR, distXZ, typeMultiplier } from './types';
+import type { Combatant, ProjectileSpec, UnitStats, ElementType } from './types';
 import { Deck, DECK_IDS, randomDeck } from './cards';
 import { buildArena } from './arena';
 import type { ArenaHandle } from './arena';
@@ -275,7 +275,7 @@ export class Game {
       this.effects.iceBlast(pos);
       this.audio.freezeSfx();
     }
-    this.areaDamage(team, pos, spell.radius, card.dmg, spell.towerDmgFactor);
+    this.areaDamage(team, pos, spell.radius, card.dmg, spell.towerDmgFactor, card.type);
     // secondary effects on survivors
     const kb = new THREE.Vector3();
     for (const u of this.units) {
@@ -319,8 +319,8 @@ export class Game {
     this.audio.pop();
   }
 
-  spawnProjectile(from: THREE.Vector3, target: Combatant, spec: ProjectileSpec, dmg: number, team: number) {
-    this.projectiles.push(new Projectile(this, from, target, spec, dmg, team));
+  spawnProjectile(from: THREE.Vector3, target: Combatant, spec: ProjectileSpec, dmg: number, team: number, atkType?: ElementType) {
+    this.projectiles.push(new Projectile(this, from, target, spec, dmg, team, atkType));
   }
 
   /* ------------------------------------------------------------ */
@@ -367,16 +367,31 @@ export class Game {
     return bestTower;
   }
 
-  areaDamage(team: number, pos: THREE.Vector3, radius: number, dmg: number, towerDmgFactor = 1) {
+  areaDamage(team: number, pos: THREE.Vector3, radius: number, dmg: number, towerDmgFactor = 1, atkType?: ElementType) {
     const dir = new THREE.Vector3();
     for (const c of this.allCombatants()) {
       if (c.team === team || !c.alive) continue;
       c.getPosition(_pos);
       if (distXZ(_pos, pos) - c.radius <= radius) {
         dir.subVectors(_pos, pos).setY(0).normalize();
-        c.takeDamage(c.isBuilding ? dmg * towerDmgFactor : dmg, dir.clone());
+        this.applyTypedDamage(c, c.isBuilding ? dmg * towerDmgFactor : dmg, atkType, dir.clone());
       }
     }
+  }
+
+  /** Deal damage with elemental type effectiveness applied + a SUPER! popup. */
+  applyTypedDamage(target: Combatant, baseDmg: number, atkType: ElementType | undefined, fromDir?: THREE.Vector3) {
+    let dmg = baseDmg;
+    const defType = (target as Unit).stats?.type; // towers have no type → neutral
+    if (atkType && defType) {
+      const m = typeMultiplier(atkType, defType);
+      dmg = baseDmg * m;
+      if (m > 1 && target.alive) {
+        target.getPosition(_pos);
+        this.dmgNums.spawnLabel(_pos.clone().setY(_pos.y + 1.2), 'SUPER!', 'super');
+      }
+    }
+    target.takeDamage(dmg, fromDir);
   }
 
   onTowerDestroyed(tower: Tower) {

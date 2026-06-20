@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import type { Combatant, ProjectileSpec, ProjectileStyle } from './types';
+import type { Combatant, ProjectileSpec, ProjectileStyle, ElementType } from './types';
 import type { Game } from './game';
 
 const _dest = new THREE.Vector3();
@@ -64,12 +64,13 @@ export class Projectile {
   spec: ProjectileSpec;
   dmg: number;
   team: number;
+  atkType?: ElementType;
   t = 0;
   duration: number;
   private trailT = 0;
   private spin = 0;
 
-  constructor(game: Game, from: THREE.Vector3, target: Combatant, spec: ProjectileSpec, dmg: number, team: number) {
+  constructor(game: Game, from: THREE.Vector3, target: Combatant, spec: ProjectileSpec, dmg: number, team: number, atkType?: ElementType) {
     this.game = game;
     this.start = from.clone();
     this.target = target;
@@ -77,6 +78,7 @@ export class Projectile {
     this.style = spec.style ?? 'orb';
     this.dmg = dmg;
     this.team = team;
+    this.atkType = atkType;
     this.lastDest = target.getPosition().setY(target.isBuilding ? 1.6 : 0.7);
     this.duration = Math.max(0.08, this.start.distanceTo(this.lastDest) / spec.speed);
 
@@ -180,9 +182,9 @@ export class Projectile {
     this.game.audio.hit();
     _dir.subVectors(pos, this.start).setY(0).normalize();
     if (this.spec.splash) {
-      this.game.areaDamage(this.team, pos, this.spec.splash, this.dmg);
+      this.game.areaDamage(this.team, pos, this.spec.splash, this.dmg, 1, this.atkType);
     } else if (this.target.alive) {
-      this.target.takeDamage(this.dmg, _dir.clone());
+      this.game.applyTypedDamage(this.target, this.dmg, this.atkType, _dir.clone());
     }
   }
 
